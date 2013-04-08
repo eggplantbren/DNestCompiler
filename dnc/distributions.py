@@ -4,12 +4,13 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
-__all__ = ["Distribution", "Uniform", "Normal"]
+__all__ = ["Distribution", "Uniform", "Normal", "Deterministic"]
 
 
 class Distribution(object):
 
     npars = 0
+    _ctype = "double"
     _prior = ""
     _proposal = ""
     _logprob = ""
@@ -43,6 +44,7 @@ class Distribution(object):
 class Uniform(Distribution):
 
     npars = 2
+    _ctype = "double"
     _prior = "{name} = {pars[0]} + ({pars[1]} - {pars[0]}) * randomU();"
 
     _proposal = """
@@ -61,6 +63,7 @@ class Uniform(Distribution):
 class Normal(Distribution):
 
     npars = 2
+    _ctype = "double"
     _prior = "{name} = {pars[0]} + {pars[1]} * randn();"
 
     _proposal = """
@@ -74,6 +77,14 @@ class Normal(Distribution):
     _logprob = """
     logL -= 0.5*(log(2*M_PI)+pow(({name}-{pars[0]})/{pars[1]},2)+log({pars[1]});
     """
+
+
+class Deterministic(Distribution):
+
+    npars = 1
+    _ctype = "double"
+    _prior = "{name} = {pars[0]};"
+    _proposal = "{name} = {pars[0]};"
 
 
 if __name__ == "__main__":
