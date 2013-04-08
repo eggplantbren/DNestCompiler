@@ -147,7 +147,7 @@ deterministic
     for(i in 1:N)
     {
         # Coordinates -- possibly loaded from data file?
-        x[i] <- i/0.1
+        x[i] <- i/10.
         line[i] <- m*x[i] + b
     }
 }
@@ -161,6 +161,87 @@ likelihood
 \end{verbatim}
 
 Here's how the C++ code should look.
+
+\begin{verbatim}
+class MyModel:public DNest3::Model
+{
+    private:
+        // Parameters
+        double m;
+	double b;
+	double sigma;
+
+        // Deterministic nodes
+        std::vector<double> x;
+        std::vector<double> line;
+}
+\end{verbatim}
+
+\begin{verbatim}
+void MyModel::calculate_deterministic_nodes()
+{
+    // This could/should happen elsewhere
+    int N = 100;
+
+    // I am worried about the cost of this
+    // Ordinarily I would have these in the initialisation list of the class
+    // but then N would have to be known. Maybe best to have it loaded from
+    // file
+    mu.resize(N);
+    x.resize(N);
+
+    for(int i=0; i<N; i++)
+    {
+        x[i] = (i+1)/10.;
+        line[i] = m*x[i] + b;
+    }
+}
+\end{verbatim}
+The {\tt fromPrior()} method should look like:
+\begin{verbatim}
+void MyModel::fromPrior()
+{
+    m = 0. + 1E6*randn();
+    b = 0. + 1E6*randn();
+    sigma = exp(log(1E-3) + log(1E3/1E-3)*randomU());
+    calculate_deterministic_nodes();
+}
+\end{verbatim}
+
+
+\begin{verbatim}
+double MyModel::perturb()
+{
+    // Hastings factors for if the proposal doesn't imply the prior
+    double logH = 0.;
+
+    int which = randInt(3);
+    if(which == 0)
+    {
+        logH -= -0.5*pow(m/1E6, 2);
+        m += 1E6*pow(10., 1.5 - 6.*randomU())*randn();
+        logH += -0.5*pow(m/1E6, 2);
+    }
+    if(which == 1)
+    {
+        logH -= -0.5*pow(b/1E6, 2);
+        b += 1E6*pow(10., 1.5 - 6.*randomU())*randn();
+        logH += -0.5*pow(b/1E6, 2);
+    }
+    if(which == 2)
+    {
+        sigma = log(sigma);
+        sigma += log(1E3/1E-3)*pow(10., 1.5 - 6.*randomU())*randn();
+        sigma = mod(sigma - log(1E-3), log(1E3)) + log(1E-3);
+        sigma = exp(sigma);
+    }
+    calculate_deterministic_nodes();
+
+    return logH;
+}
+\end{verbatim}
+
+
 
 \end{document}
 
