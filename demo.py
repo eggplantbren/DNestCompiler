@@ -13,6 +13,4 @@ theta2 = Deterministic("theta2", "pow(theta, 2)")
 x = Normal("x", theta2, 0.5)
 
 model = Model("MyModel", [theta, theta2, x])
-print(model.header)
-print()
-print(model.implementation)
+model.save("demo_results")

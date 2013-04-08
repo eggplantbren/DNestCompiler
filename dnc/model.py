@@ -34,3 +34,22 @@ class Model(object):
     def implementation(self):
         return _implementation_template.render(name=self.name,
                                                nodes=self.nodes)
+
+    def save(self, basepath=".", clobber=True):
+        try:
+            os.makedirs(basepath)
+        except os.error:
+            if clobber:
+                print("Overwriting existing model.")
+            else:
+                raise
+
+        fn = os.path.join(basepath, "{0}.h".format(self.name))
+        print("Writing header to: {0}".format(fn))
+        with open(fn, "w") as f:
+            f.write(self.header)
+
+        fn = os.path.join(basepath, "{0}.cpp".format(self.name))
+        print("Writing implementation to: {0}".format(fn))
+        with open(fn, "w") as f:
+            f.write(self.implementation)
