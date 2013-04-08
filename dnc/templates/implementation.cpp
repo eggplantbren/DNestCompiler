@@ -20,7 +20,7 @@ void {{ name }}::fromPrior()
     {%- endfor %}
 }
 
-void {{ name }}::perturb() {
+double {{ name }}::perturb() {
     double logH = 0.0;
     {% for node in nodes %}
     {%- if node.proposal %}
