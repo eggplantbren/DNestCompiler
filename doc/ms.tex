@@ -1,0 +1,61 @@
+\documentclass[letterpaper, 11pt]{article}
+\usepackage{graphicx}
+\usepackage{natbib}
+\usepackage[left=3cm,top=3cm,right=3cm]{geometry}
+
+\renewcommand{\topfraction}{0.85}
+\renewcommand{\textfraction}{0.1}
+\parindent=0cm
+
+\newcommand{\dnest}{{\tt DNest}}
+
+\title{Desiderata}
+%\author{Brendon J. Brewer}
+
+\begin{document}
+\maketitle
+
+
+I like the implementation of the BUGS language that is used in JAGS, but there
+are some things about the language in STAN that are better, so those should
+be used too (e.g. parameterising normal distributions using standard deviation
+instead of precision, and calling it {\tt normal} instead of {\tt dnorm}).
+
+\section{Simple Example}
+Suppose we have a problem with one parameter called $\theta$ and a data value
+called $x$. Let
+the prior be $\theta \sim \textnormal{Uniform}(-10, 10)$ and let the likelihood
+function
+be $x \sim \mathcal{N}(\theta, \sigma^2)$ where $\sigma$ is a known fixed
+standard deviation (a deterministic parent node in the graphical model).
+
+For convenience from a \dnest~point of view, it makes sense to divide
+the model specification into three blocks. The prior (which also defines all
+named parameters), any deterministic nodes (things that are either known
+a priori, or
+derivable from the parameters using a given formula), and the likelihood.
+
+This would be coded as:
+\begin{verbatim}
+# Note that the decimal points are my way of being
+# a bit pedantic about knowing what's a double and what's an int.
+prior
+{
+    theta ~ uniform(0., 1.)
+}
+
+deterministic
+{
+    sigma <- 1.
+}
+
+likelihood
+{
+    x ~ normal(theta, sigma)
+}
+\end{verbatim}
+
+
+
+\end{document}
+
