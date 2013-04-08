@@ -103,15 +103,21 @@ The proposal distributions need to be specified in the \mymodel~class.
 These need to imply the prior distribution. For a uniform prior like in our
 example, it should look like this:
 \begin{verbatim}
-void MyModel::fromPrior()
+double MyModel::perturb()
 {
+    // Hastings factors for if the proposal doesn't imply the prior
+    double logH = 0.;
+
     // The coefficient out the front is the width of the prior.
     // Therefore the biggest steps are of order the prior width.
     theta += 1.*pow(10., 1.5 - 6.*randomU())*randn();
+
+    // Make sampling the prior rejection-free!
     theta = mod(theta, 1.);
+
+    return logH;
 }
 \end{verbatim}
-
 
 \end{document}
 
