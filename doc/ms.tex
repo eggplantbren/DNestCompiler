@@ -22,7 +22,7 @@ are some things about the language in STAN that are better, so those should
 be used too (e.g. parameterising normal distributions using standard deviation
 instead of precision, and calling it {\tt normal} instead of {\tt dnorm}).
 
-\section{Simple Example}
+\section{Example 1: One Parameter, One Datum}
 Suppose we have a problem with one parameter called $\theta$ and a data value
 called $x$. Let
 the prior be $\theta \sim \textnormal{Uniform}(-10, 10)$ and let the likelihood
@@ -122,6 +122,45 @@ double MyModel::perturb()
     return logH;
 }
 \end{verbatim}
+
+\section{Example 2: Fitting a Straight Line}
+We will use vague priors on the intercept and slope, and an unknown noise
+standard deviation with a log-uniform prior!
+In the new language, this would be coded as:
+\begin{verbatim}
+# Note that the decimal points are my way of being
+# a bit pedantic about knowing what's a double and what's an int.
+prior
+{
+    # Vague priors
+    m ~ normal(0., 1E6)
+    b ~ normal(0., 1E6)
+    sigma ~ loguniform(1E-3, 1E3)
+}
+
+deterministic
+{
+    # Number of data points (possibly loaded from data file?)
+    N <- 100
+
+    # The noise-free straight line (it's an array!)
+    for(i in 1:N)
+    {
+        # Coordinates -- possibly loaded from data file?
+        x[i] <- i/0.1
+        line[i] <- m*x[i] + b
+    }
+}
+
+likelihood
+{
+    # Can have a loop without braces
+    for(i in 1:N)
+        y[i] ~ normal(mu[i], sigma)
+}
+\end{verbatim}
+
+Here's how the C++ code should look.
 
 \end{document}
 
