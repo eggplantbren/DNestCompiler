@@ -97,6 +97,8 @@ The {\tt fromPrior()} method should look like:
 void MyModel::fromPrior()
 {
     theta = randomU(); // randomU() is my home-made alias
+
+    calculate_deterministic_nodes();
 }
 \end{verbatim}
 The proposal distributions need to be specified in the \mymodel~class.
@@ -114,6 +116,8 @@ double MyModel::perturb()
 
     // Make sampling the prior rejection-free!
     theta = mod(theta, 1.);
+
+    calculate_deterministic_nodes();
 
     return logH;
 }
