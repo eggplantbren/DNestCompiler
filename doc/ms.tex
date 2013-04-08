@@ -8,6 +8,7 @@
 \parindent=0cm
 
 \newcommand{\dnest}{{\tt DNest}}
+\newcommand{\mymodel}{{\tt MyModel}}
 
 \title{Desiderata}
 %\author{Brendon J. Brewer}
@@ -35,6 +36,8 @@ named parameters), any deterministic nodes (things that are either known
 a priori, or
 derivable from the parameters using a given formula), and the likelihood.
 
+\subsection{How this should look}
+
 This would be coded as:
 \begin{verbatim}
 # Note that the decimal points are my way of being
@@ -55,6 +58,59 @@ likelihood
 }
 \end{verbatim}
 
+\subsection{How this should look in \dnest}
+Forget about the likelihood part for starters, just focus on the prior and
+deterministic parts. If you scan the lines inside the {\tt prior} and
+{\tt deterministic} blocks, you get the names of all variables that need to
+be declared in the \mymodel~class. For our example, the C++ code for this
+declaration would be:
+
+\begin{verbatim}
+class MyModel:public DNest3::Model
+{
+    private:
+        // Parameters
+        double theta;
+
+        // Deterministic nodes
+        double sigma;
+}
+\end{verbatim}
+
+There should also be a method that calculates all the deterministic nodes.
+\begin{verbatim}
+class MyModel:public DNest3::Model
+{
+    private:
+        void calculate_deterministic_nodes();
+}
+\end{verbatim}
+The implementation of this in \mymodel{\tt.cpp} should look like:
+\begin{verbatim}
+void MyModel::calculate_deterministic_nodes()
+{
+    sigma = 1.;
+}
+\end{verbatim}
+The {\tt fromPrior()} method should look like:
+\begin{verbatim}
+void MyModel::fromPrior()
+{
+    theta = randomU(); // randomU() is my home-made alias
+}
+\end{verbatim}
+The proposal distributions need to be specified in the \mymodel~class.
+These need to imply the prior distribution. For a uniform prior like in our
+example, it should look like this:
+\begin{verbatim}
+void MyModel::fromPrior()
+{
+    // The coefficient out the front is the width of the prior.
+    // Therefore the biggest steps are of order the prior width.
+    theta += 1.*pow(10., 1.5 - 6.*randomU())*randn();
+    theta = mod(theta, 1.);
+}
+\end{verbatim}
 
 
 \end{document}
