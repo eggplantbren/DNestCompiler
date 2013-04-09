@@ -21,9 +21,9 @@ class {{name}}:public DNest3::Model
         double perturb_{{ node.name }}();
         {%- endfor %}
 
-        // double logLikelihood() const;
+        double logLikelihood() const;
         void print(std::ostream& out) const;
-        // std::string description() const;
+        std::string description() const;
 
 };
 
