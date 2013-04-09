@@ -30,3 +30,11 @@ double {{ name }}::perturb() {
     {%- endfor %}
     return logH;
 }
+
+void {{ name }}::print(std::ostream& out) const
+{
+    {%- for node in nodes %}
+    out<<{{ node.name }}<<' ';
+    {%- endfor %}
+}
+

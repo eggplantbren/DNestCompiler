@@ -20,7 +20,7 @@ class {{name}}:public DNest3::Model
         double perturb();
 
         // double logLikelihood() const;
-        // void print(std::ostream& out) const;
+        void print(std::ostream& out) const;
         // std::string description() const;
 
 };
