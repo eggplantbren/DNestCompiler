@@ -6,12 +6,14 @@ from __future__ import (division, print_function, absolute_import,
 
 
 from dnc.model import Model
-from dnc.distributions import Uniform, Normal, Derived
+from dnc.distributions import Uniform, LogUniform, Normal, Derived
 
-theta = Uniform("theta", 0., 1.)
-theta2 = Derived("theta2", "pow(theta, 2)")
-x = Normal("x", theta2, 0.5)
+mu = Uniform("mu", -10., 10.)
+sigma = LogUniform("sigma", 1E-3, 1.)
+muSq = Derived("muSq", "pow(mu, 2)")
+x = Normal("x", mu, sigma)
+x.observed = 3.141
 
-model = Model("MyModel", [theta, theta2, x])
+model = Model("MyModel", [mu, sigma, x, muSq])
 model.save("demo_results")
 
