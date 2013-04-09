@@ -6,6 +6,12 @@
 using namespace std;
 using namespace DNest3;
 
+// Data
+{%- for d in data %}
+{{ d._ctype }} {{ name }}::{{ d.name }} = {{ d.observed }};
+{%- endfor %}
+
+
 {{ name }}::{{ name }}()
 {
 }
@@ -22,8 +28,24 @@ void {{ name }}::fromPrior()
     compute_derived();
 }
 
-double {{ name }}::perturb() {
-    double logH = 0.0;
+double {{ name }}::perturb()
+{
+    double logH = 0.;
+
+    // Propose each parameter with this probability
+    double prob = randomU();
+    int count = 0;
+
+    do
+    {
+        {%- for param in params %}
+        if(randomU() <= prob)
+        {
+            logH += perturb_{{ param.name }}();
+            count++;
+        }
+        {%- endfor %}
+    }while(count == 0);
 
     compute_derived();
     return logH;
@@ -65,7 +87,9 @@ string {{ name }}::description() const
 double {{ name }}::logLikelihood() const
 {
     double logL = 0.;
-
-    return 0.;
+    {%- for d in data %}
+    {{ d.logprob }}
+    {%- endfor %}
+    return logL;
 }
 

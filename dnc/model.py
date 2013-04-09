@@ -24,18 +24,19 @@ class Model(object):
     def __init__(self, name, nodes):
         self.name = name
         self.derived = [node for node in nodes if isinstance(node, Derived)]
-	self.params =  [node for node in nodes if not isinstance(node, Derived)]
-	self.npar = len(nodes)
+	self.params =  [node for node in nodes if not isinstance(node, Derived) and node.observed is None]
+        self.data = [node for node in nodes if not isinstance(node, Derived) and node.observed is not None]
+	self.npar = len(self.params)
 
     @property
     def header(self):
         return _header_template.render(name=self.name, params=self.params,
-                                          derived=self.derived, npar=self.npar)
+                                          derived=self.derived, data=self.data, npar=self.npar)
 
     @property
     def implementation(self):
         return _implementation_template.render(name=self.name, params=self.params,
-                                          derived=self.derived, npar=self.npar)
+                                          derived=self.derived, data=self.data, npar=self.npar)
 
     def save(self, basepath=".", clobber=True):
         try:

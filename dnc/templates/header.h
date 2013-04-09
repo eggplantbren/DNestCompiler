@@ -7,6 +7,11 @@
 class {{name}}:public DNest3::Model
 {
     private:
+        // Data
+        {%- for d in data %}
+        static {{ d._ctype }} {{ d.name }};
+        {%- endfor %}
+        
         // Parameters (coordinates on the hypothesis space)
         {%- for param in params %}
         {{ param._ctype }} {{ param.name }};
