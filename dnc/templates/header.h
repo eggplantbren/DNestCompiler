@@ -7,10 +7,12 @@
 class {{name}}:public DNest3::Model
 {
     private:
+        // Parameters (coordinates on the hypothesis space)
         {%- for param in params %}
         {{ param._ctype }} {{ param.name }};
         {%- endfor %}
 
+        // Derived quantities
         {%- for d in derived %}
         {{ d._ctype }} {{ d.name }};
         {%- endfor %}
@@ -23,7 +25,8 @@ class {{name}}:public DNest3::Model
         void fromPrior();
         double perturb();
 
-        {% for param in params %}
+        // Proposals for each of the parameters
+        {%- for param in params %}
         double perturb_{{ param.name }}();
         {%- endfor %}
 
