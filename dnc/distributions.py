@@ -4,7 +4,7 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
-__all__ = ["Distribution", "Uniform", "Normal", "Deterministic"]
+__all__ = ["Distribution", "Uniform", "LogUniform", "Normal", "Deterministic"]
 
 
 class Distribution(object):
@@ -57,6 +57,26 @@ class Uniform(Distribution):
         logL = -1e300;
     else
         logL -= log({pars[1]} - {pars[1]});
+    """
+
+class LogUniform(Distribution):
+
+    npars = 2
+    _ctype = "double"
+    _prior = "{name} = exp(log({pars[0]}) + log({pars[1]}/{pars[0]}) * randomU());"
+
+    _proposal = """
+    {name} = log({name});
+    {name} += log({pars[1]}/{pars[0]}) * pow(10., 1.5-6.*randomU()) * randn();
+    {name} = mod({name} - log({pars[0]}), log({pars[1]}/{pars[0]}) + log({pars[0]});
+    {name} = exp({name});
+    """
+
+    _logprob = """
+    if ({name} < log({pars[0]}) || {name} > log({pars[1]}))
+        logL = -1e300;
+    else
+        logL -= log({name}) + log({pars[1]}/{pars[0]});
     """
 
 
