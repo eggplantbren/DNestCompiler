@@ -6,9 +6,7 @@
 
 class {{name}}:public DNest3::Model
 {
-
     private:
-
         {%- for node in nodes %}
         {{ node._ctype }} {{ node.name }};
         {%- endfor %}
@@ -18,6 +16,10 @@ class {{name}}:public DNest3::Model
         {{ name }}();
         void fromPrior();
         double perturb();
+
+        {% for node in nodes %}
+        double perturb_{{ node.name }}();
+        {%- endfor %}
 
         // double logLikelihood() const;
         void print(std::ostream& out) const;

@@ -22,14 +22,17 @@ void {{ name }}::fromPrior()
 
 double {{ name }}::perturb() {
     double logH = 0.0;
-    {% for node in nodes %}
-    {%- if node.proposal %}
-    // Perturb {{ node.name }}
-    {{ node.proposal.strip() }}
-    {% endif %}
-    {%- endfor %}
+
+    
     return logH;
 }
+
+{% for node in nodes %}
+double perturb_{{ node.name }}()
+{
+    {{ node.proposal.strip() }}
+}
+{% endfor %}
 
 void {{ name }}::print(std::ostream& out) const
 {
