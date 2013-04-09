@@ -19,6 +19,7 @@ class Distribution(object):
         self.name = name
         self.pars = args
         assert self.npars == len(args), "Wrong number of parameters."
+        self.observed = None
 
     def __str__(self):
         return self.name
@@ -49,7 +50,7 @@ class Uniform(Distribution):
 
     _proposal = """
     {name} += ({pars[1]} - {pars[0]})*pow(10., 1.5 - 6.*randomU())*randn();
-    {name} = mod({name} - {pars[0]}, {pars[1]} - {pars[0]});
+    {name} = mod({name} - {pars[0]}, {pars[1]} - {pars[0]}) + {pars[0]};
     """
 
     _logprob = """
@@ -63,12 +64,12 @@ class LogUniform(Distribution):
 
     npars = 2
     _ctype = "double"
-    _prior = "{name} = exp(log({pars[0]}) + log({pars[1]}/{pars[0]}) * randomU());"
+    _prior = "{name} = exp(log({pars[0]}) + log({pars[1]}/{pars[0]})*randomU());"
 
     _proposal = """
     {name} = log({name});
-    {name} += log({pars[1]}/{pars[0]}) * pow(10., 1.5-6.*randomU()) * randn();
-    {name} = mod({name} - log({pars[0]}), log({pars[1]}/{pars[0]}) + log({pars[0]});
+    {name} += log({pars[1]}/{pars[0]})*pow(10., 1.5 - 6.*randomU())*randn();
+    {name} = mod({name} - log({pars[0]}), log({pars[1]}/{pars[0]})) + log({pars[0]});
     {name} = exp({name});
     """
 
@@ -108,3 +109,4 @@ if __name__ == "__main__":
     theta = Uniform("theta", 0, 1)
     x = Normal("x", theta, 1.5)
     print(x.logprob)
+
