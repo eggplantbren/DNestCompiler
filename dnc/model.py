@@ -9,7 +9,7 @@ __all__ = ["Model"]
 
 import os
 from jinja2 import Template
-
+from .distributions import Derived
 
 _template_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "templates")
@@ -19,21 +19,23 @@ _implementation_template = Template(open(os.path.join(_template_dir,
                                                       "implementation.cpp"))
                                     .read())
 
-
 class Model(object):
 
     def __init__(self, name, nodes):
         self.name = name
-        self.nodes = nodes
+        self.derived = [node for node in nodes if isinstance(node, Derived)]
+	self.params =  [node for node in nodes if not isinstance(node, Derived)]
+	self.npar = len(nodes)
 
     @property
     def header(self):
-        return _header_template.render(name=self.name, nodes=self.nodes)
+        return _header_template.render(name=self.name, params=self.params,
+                                          derived=self.derived, npar=self.npar)
 
     @property
     def implementation(self):
-        return _implementation_template.render(name=self.name,
-                                               nodes=self.nodes)
+        return _implementation_template.render(name=self.name, params=self.params,
+                                          derived=self.derived, npar=self.npar)
 
     def save(self, basepath=".", clobber=True):
         try:

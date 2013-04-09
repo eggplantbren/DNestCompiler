@@ -7,9 +7,15 @@
 class {{name}}:public DNest3::Model
 {
     private:
-        {%- for node in nodes %}
-        {{ node._ctype }} {{ node.name }};
+        {%- for param in params %}
+        {{ param._ctype }} {{ param.name }};
         {%- endfor %}
+
+        {%- for d in derived %}
+        {{ d._ctype }} {{ d.name }};
+        {%- endfor %}
+
+        void compute_derived();
 
     public:
 
@@ -17,8 +23,8 @@ class {{name}}:public DNest3::Model
         void fromPrior();
         double perturb();
 
-        {% for node in nodes %}
-        double perturb_{{ node.name }}();
+        {% for param in params %}
+        double perturb_{{ param.name }}();
         {%- endfor %}
 
         double logLikelihood() const;

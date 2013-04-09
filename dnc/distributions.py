@@ -4,7 +4,7 @@
 from __future__ import (division, print_function, absolute_import,
                         unicode_literals)
 
-__all__ = ["Distribution", "Uniform", "LogUniform", "Normal", "Deterministic"]
+__all__ = ["Distribution", "Uniform", "LogUniform", "Normal", "Derived"]
 
 
 class Distribution(object):
@@ -98,13 +98,10 @@ class Normal(Distribution):
     logL -= 0.5*(log(2*M_PI)+pow(({name}-{pars[0]})/{pars[1]},2)+log({pars[1]});
     """
 
-
-class Deterministic(Distribution):
-
+class Derived(Distribution):
     npars = 1
     _ctype = "double"
     _prior = "{name} = {pars[0]};"
-    _proposal = "{name} = {pars[0]};"
 
 
 if __name__ == "__main__":
