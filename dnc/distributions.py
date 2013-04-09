@@ -14,6 +14,7 @@ class Distribution(object):
     _prior = ""
     _proposal = ""
     _logprob = ""
+    is_derived = False
 
     def __init__(self, name, *args):
         self.name = name
@@ -103,7 +104,7 @@ class Derived(Distribution):
     npars = 1
     _ctype = "double"
     _prior = "{name} = {pars[0]};"
-
+    is_derived = True
 
 if __name__ == "__main__":
     theta = Uniform("theta", 0, 1)

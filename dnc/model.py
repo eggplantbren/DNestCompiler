@@ -23,9 +23,9 @@ class Model(object):
 
     def __init__(self, name, nodes):
         self.name = name
-        self.derived = [node for node in nodes if isinstance(node, Derived)]
-	self.params =  [node for node in nodes if not isinstance(node, Derived) and node.observed is None]
-        self.data = [node for node in nodes if not isinstance(node, Derived) and node.observed is not None]
+        self.derived = [node for node in nodes if node.is_derived]
+	self.params =  [node for node in nodes if not node.is_derived and node.observed is None]
+        self.data = [node for node in nodes if not node.is_derived and node.observed is not None]
 	self.npar = len(self.params)
 
     @property
