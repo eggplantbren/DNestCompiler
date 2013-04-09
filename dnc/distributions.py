@@ -45,10 +45,10 @@ class Uniform(Distribution):
 
     npars = 2
     _ctype = "double"
-    _prior = "{name} = {pars[0]} + ({pars[1]} - {pars[0]}) * randomU();"
+    _prior = "{name} = {pars[0]} + ({pars[1]} - {pars[0]})*randomU();"
 
     _proposal = """
-    {name} += ({pars[1]} - {pars[0]}) * pow(10., 1.5-6.*randomU()) * randn();
+    {name} += ({pars[1]} - {pars[0]})*pow(10., 1.5 - 6.*randomU())*randn();
     {name} = mod({name} - {pars[0]}, {pars[1]} - {pars[0]});
     """
 
@@ -56,7 +56,7 @@ class Uniform(Distribution):
     if ({name} < {pars[0]} || {name} > {pars[1]})
         logL = -1e300;
     else
-        logL -= log({pars[1]} - {pars[1]});
+        logL += -log({pars[1]} - {pars[1]});
     """
 
 class LogUniform(Distribution):
@@ -76,7 +76,7 @@ class LogUniform(Distribution):
     if ({name} < log({pars[0]}) || {name} > log({pars[1]}))
         logL = -1e300;
     else
-        logL -= log({name}) + log({pars[1]}/{pars[0]});
+        logL += -log({name}) - log({pars[1]}/{pars[0]});
     """
 
 
@@ -84,18 +84,18 @@ class Normal(Distribution):
 
     npars = 2
     _ctype = "double"
-    _prior = "{name} = {pars[0]} + {pars[1]} * randn();"
+    _prior = "{name} = {pars[0]} + {pars[1]}*randn();"
 
     _proposal = """
-    double _dnc_{name} = ({name} - {pars[0]}) / {pars[1]};
-    logH += 0.5 * pow(_dnc_{name}, 2);
-    _dnc_{name} += {pars[1]} * pow(10., 1.5-6.*randomU()) * randn();
-    logH -= 0.5 * pow(_dnc_{name}, 2);
-    {name} = {pars[0]} + {pars[1]} * _dnc_{name};
+    double _dnc_{name} = ({name} - {pars[0]})/{pars[1]};
+    logH -= -0.5*pow(_dnc_{name}, 2);
+    _dnc_{name} += {pars[1]}*pow(10., 1.5 - 6.*randomU())*randn();
+    logH += -0.5* pow(_dnc_{name}, 2);
+    {name} = {pars[0]} + {pars[1]}*_dnc_{name};
     """
 
     _logprob = """
-    logL -= 0.5*(log(2*M_PI)+pow(({name}-{pars[0]})/{pars[1]},2)+log({pars[1]});
+    logL += -0.5*log(2*M_PI) - log({pars[1]}) - 0.5*pow(({name}-{pars[0]})/{pars[1]}, 2);
     """
 
 class Derived(Distribution):
