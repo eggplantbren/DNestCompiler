@@ -58,7 +58,7 @@ class Uniform(Distribution):
     if ({name} < {pars[0]} || {name} > {pars[1]})
         logL = -1e300;
     else
-        logL += -log({pars[1]} - {pars[1]});
+        logL += -log({pars[1]} - {pars[0]});
     """
 
 class LogUniform(Distribution):
