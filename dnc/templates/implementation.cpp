@@ -24,8 +24,6 @@ void {{ name }}::fromPrior()
     {{ param.prior.strip() }}
     {% endif %}
     {%- endfor %}
-
-    compute_derived();
 }
 
 double {{ name }}::perturb()
@@ -39,33 +37,29 @@ double {{ name }}::perturb()
     do
     {
         {%- for param in params %}
+        {%- if param.is_derived == False %}
         if(randomU() <= prob)
         {
             logH += perturb_{{ param.name }}();
             count++;
         }
+        {%- endif %}
         {%- endfor %}
     }while(count == 0);
 
-    compute_derived();
     return logH;
 }
 
-void {{ name }}::compute_derived()
-{
-    {%- for d in derived %}
-    {{ d.prior }}
-    {%- endfor %}
-}
-
-{% for param in params %}
+{%- for param in params %}
+{%- if param.is_derived == False %}
 double {{ name }}::perturb_{{ param.name }}()
 {
     double logH = 0.;
     {{ param.proposal.strip() }}
     return logH;
 }
-{% endfor %}
+{%- endif %}
+{%- endfor %}
 
 void {{ name }}::print(std::ostream& out) const
 {

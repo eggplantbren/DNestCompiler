@@ -22,8 +22,6 @@ class {{name}}:public DNest3::Model
         {{ d._ctype }} {{ d.name }};
         {%- endfor %}
 
-        void compute_derived();
-
     public:
 
         {{ name }}();

@@ -1,22 +1,3 @@
-/*
-* Copyright (c) 2009, 2010, 2011, 2012 Brendon J. Brewer.
-*
-* This file is part of DNest3.
-*
-* DNest3 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* DNest3 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with DNest3. If not, see <http://www.gnu.org/licenses/>.
-*/
-
 #include "MyModel.h"
 #include "RandomNumberGenerator.h"
 #include "Utils.h"
@@ -25,33 +6,93 @@
 using namespace std;
 using namespace DNest3;
 
+// Data
+double MyModel::x = 3.141;
+
+
 MyModel::MyModel()
 {
-
 }
 
 void MyModel::fromPrior()
 {
-
+    // Prior on mu
+    mu = -10.0 + (10.0 - -10.0)*randomU();
+    
+    // Prior on sigma
+    sigma = exp(log(0.001) + log(1.0/0.001)*randomU());
+    
+    // Prior on muSq
+    muSq = pow(mu, 2);
+    
 }
 
 double MyModel::perturb()
 {
-	return 0.;
-}
+    double logH = 0.;
 
-double MyModel::logLikelihood() const
+    // Propose each parameter with this probability
+    double prob = randomU();
+    int count = 0;
+
+    do
+    {
+        if(randomU() <= prob)
+        {
+            logH += perturb_mu();
+            count++;
+        }
+        if(randomU() <= prob)
+        {
+            logH += perturb_sigma();
+            count++;
+        }
+    }while(count == 0);
+
+    return logH;
+}
+double MyModel::perturb_mu()
 {
-	return 0.;
+    double logH = 0.;
+    mu += (10.0 - -10.0)*pow(10., 1.5 - 6.*randomU())*randn();
+    mu = mod(mu - -10.0, 10.0 - -10.0) + -10.0;
+    muSq = pow(mu, 2);
+    return logH;
+}
+double MyModel::perturb_sigma()
+{
+    double logH = 0.;
+    sigma = log(sigma);
+    sigma += log(1.0/0.001)*pow(10., 1.5 - 6.*randomU())*randn();
+    sigma = mod(sigma - log(0.001), log(1.0/0.001)) + log(0.001);
+    sigma = exp(sigma);
+    return logH;
 }
 
 void MyModel::print(std::ostream& out) const
 {
-
+    out<<mu<<' ';
+    out<<sigma<<' ';
+    out<<muSq<<' ';
 }
 
 string MyModel::description() const
 {
-	return string("# Header for output files.");
+    string result = "";
+    result += "mu";
+    result += ", ";
+    result += "sigma";
+    result += ", ";
+    result += "muSq";
+    result += ", ";
+    return result;
 }
 
+double MyModel::logLikelihood() const
+{
+    double logL = 0.;
+    
+    logL += -0.5*log(2*M_PI) - log(sigma) - 0.5*pow((x-mu)/sigma, 2);
+    
+    return logL;
+}
