@@ -47,11 +47,19 @@ class Node(object):
         return s
 
     @property
-    def proposal(self):
+    def proposal1(self):
         s = ''
         s += self.center_children
         s += self._proposal.format(name=self.name, pars=self.pars)
         s += self.decenter_children
+	return s
+
+    @property
+    def proposal2(self):
+        s = ''
+        s += self.logp_children.replace('logL', 'logP1')
+        s += self._proposal.format(name=self.name, pars=self.pars)
+        s += self.logp_children.replace('logL', 'logP2')
 	return s
 
     @property
@@ -74,6 +82,14 @@ class Node(object):
             if child.observed is None:
 		    s += child._decenter.format(name=child.name, pars=child.pars)
 		    s += child.decenter_children
+        return s
+
+    @property
+    def logp_children(self):
+        s = ''
+        for child in self.children:
+            if child.observed is None:
+		    s += child.logprob.format(name=child.name, pars=child.pars)
         return s
 
 class Uniform(Node):
@@ -147,7 +163,7 @@ class Normal(Node):
     """
 
     _logprob = """
-    logL += -0.5*log(2*M_PI) - log({pars[1]}) - 0.5*pow(({name}-{pars[0]})/{pars[1]}, 2);
+    logL += -0.5*log(2*M_PI) - log({pars[1]}) - 0.5*pow(({name} - {pars[0]})/{pars[1]}, 2);
     """
 
     _center = """
@@ -171,10 +187,4 @@ class Derived(Node):
         for p in parents:
             p.children.append(self)
 
-
-if __name__ == '__main__':
-    theta = Uniform("theta", 0., 1.)
-    x = Derived("x", "pow(theta, 2)")
-    x.specify_parents([theta])
-    print(theta.proposal)
 

@@ -40,11 +40,15 @@ double {{ name }}::perturb()
         {%- if param.is_derived == False %}
         if(randomU() <= prob)
         {
-            logH += perturb_{{ param.name }}();
+		if(randomU() <= 0.5)
+		    logH += perturb_{{ param.name }}_1();
+		else
+		    logH += perturb_{{ param.name }}_2();  
             count++;
         }
         {%- endif %}
         {%- endfor %}
+
     }while(count == 0);
 
     return logH;
@@ -52,14 +56,30 @@ double {{ name }}::perturb()
 
 {%- for param in params %}
 {%- if param.is_derived == False %}
-double {{ name }}::perturb_{{ param.name }}()
+double {{ name }}::perturb_{{ param.name }}_1()
 {
     double logH = 0.;
-    {{ param.proposal.strip() }}
+    {{ param.proposal1.strip() }}
     return logH;
 }
 {%- endif %}
 {%- endfor %}
+
+
+{%- for param in params %}
+{%- if param.is_derived == False %}
+double {{ name }}::perturb_{{ param.name }}_2()
+{
+    double logH = 0.;
+    double logP1 = 0.;
+    double logP2 = 0.;
+    {{ param.proposal2.strip() }}
+    logH += logP2 - logP1;
+    return logH;
+}
+{%- endif %}
+{%- endfor %}
+
 
 void {{ name }}::print(std::ostream& out) const
 {

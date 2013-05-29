@@ -30,7 +30,8 @@ class {{name}}:public DNest3::Model
 
         // Proposals for each of the parameters
         {%- for param in params %}
-        double perturb_{{ param.name }}();
+        double perturb_{{ param.name }}_1();
+	double perturb_{{ param.name }}_2();
         {%- endfor %}
 
         double logLikelihood() const;
